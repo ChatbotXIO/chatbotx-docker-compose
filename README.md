@@ -9,173 +9,268 @@
 </p>
 
 <p align="center">
-  <a href="https://opensource.org/license/agpl-v3">
-    <img alt="License" src="https://img.shields.io/badge/License-AGPL%203.0-2496ED?labelColor=111827">
-  </a>
-</p>
-
-<p align="center">
-  <strong>Open-source omnichannel chatbot for agentic workflows via APIs, CLI, and MCP.</strong>
-  <br>
-  An alternative to Wati, ManyChat, Chatfuel and Respond.io.
-</p>
-
-<p align="center">
   <a href="https://chatbotx.io">Website</a>
-  |
-  <a href="https://chatbotx.io/coming-soon/">Cloud</a>
-  |
+  ·
   <a href="https://chatbotx.io/docs">Docs</a>
-  |
+  ·
   <a href="https://discord.chatbotx.io/">Discord</a>
 </p>
 
-<p align="center">
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white">
-  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-111827?logo=nextdotjs&logoColor=white">
-  <img alt="Turborepo" src="https://img.shields.io/badge/Turborepo-EF4444?logo=turborepo&logoColor=white">
-  <img alt="pnpm" src="https://img.shields.io/badge/pnpm-F69220?logo=pnpm&logoColor=white">
-  <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white">
-  <img alt="Redis" src="https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white">
-  <img alt="Docker" src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white">
-  <img alt="MCP" src="https://img.shields.io/badge/MCP-111827">
-</p>
+## Watch the tutorial for Docker Compose install
 
-<p align="center">
-  <img alt="WhatsApp" src=".github/assets/readme/whatsapp.svg" width="32">
-  <img alt="Messenger" src=".github/assets/readme/messenger.svg" width="32">
-  <img alt="Instagram" src=".github/assets/readme/instagram.svg" width="32">
-  <img alt="Telegram" src=".github/assets/readme/telegram.svg" width="32">
-  <img alt="Zalo" src=".github/assets/readme/zalo.svg" width="32">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/readme/tiktok-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset=".github/assets/readme/tiktok-light.svg">
-    <img alt="TikTok" src=".github/assets/readme/tiktok-light.svg" width="32">
-  </picture>
-  <img alt="Email" src=".github/assets/readme/email.svg" width="32">
-  <img alt="Website" src=".github/assets/readme/website.svg" width="32">
-</p>
+Follow the **[Quick Start](https://chatbotx.io/docs/quickstart)** in the ChatbotX documentation to go from Docker Compose to a running workspace.
 
-<p align="center">
-  <img alt="ChatbotX omnichannel AI chatbot hero" src=".github/assets/readme/chatbotx-hero.png">
-</p>
+## Warning
 
-## ✨ Features
+If you are upgrading from an older ChatbotX version or Compose layout, verify that your compose file and environment variables match the current **[documentation](https://chatbotx.io/docs)** before starting services.
 
-- **Omnichannel Inbox:** Manage customer conversations from supported messaging channels in one workspace.
-- **Flow Builder:** Build automated chatbot flows for qualification, support, routing, follow-up, and data capture.
-- **AI Agents:** Connect AI providers and knowledge workflows to answer questions, analyze inputs, generate content, and hand off to humans.
-- **Broadcasts and Sequences:** Send campaigns, schedule follow-ups, and track channel-level delivery workflows.
-- **Triggers and Webhooks:** React to events and connect ChatbotX with external systems.
-- **APIs, CLI, and MCP:** Automate ChatbotX from scripts, agent workflows, and MCP-compatible clients.
-- **Integrations:** Includes channel and app integrations such as WhatsApp, Messenger, Instagram, Telegram, Zalo, Webchat, Email, OpenAI, and Google Sheets.
 
-<table width="100%">
-  <tr>
-    <td width="50%" align="center" valign="top">
-      <img alt="Omnichannel Team Inbox" src=".github/assets/readme/omnichannel-team-inbox.gif" width="100%">
-    </td>
-    <td width="50%" align="center" valign="top">
-      <img alt="Smart Contact Import and Bulk Messaging" src=".github/assets/readme/smart-contact-import.gif" width="100%">
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center" valign="top">
-      <img alt="AI-First Platform API CLI and MCP" src=".github/assets/readme/ai-first-platform.gif" width="100%">
-    </td>
-    <td width="50%" align="center" valign="top">
-      <img alt="Built-in AI Agents" src=".github/assets/readme/built-in-ai-agents.gif" width="100%">
-    </td>
-  </tr>
-</table>
+## Docker Compose
 
-## Tech Stack
+This guide assumes that you have Docker installed with enough resources to run ChatbotX (PostgreSQL with pgvector, Redis, RustFS, builder, worker, and realtime).
 
-- Node.js 24
-- TypeScript 5
-- pnpm 10 workspaces
-- Turborepo
-- Next.js 16 and React 19 for `apps/builder`
-- PartyKit / PartySocket for realtime messaging
-- Drizzle ORM with PostgreSQL and pgvector
-- Redis and BullMQ for queues and worker coordination
-- RustFS / S3-compatible storage for uploaded assets
-- ClickHouse for analytics
-- Docker Compose for local infrastructure
+This Docker Compose setup has been tested with:
 
-## Quick Start
+- Virtual Machine, Ubuntu 24.04, 2 GB RAM, 2 vCPUs (baseline; allocate more RAM for comfortable local use).
 
-To have the project up and running, please follow the [Quick Start Guide](https://chatbotx.io/docs/quickstart).
+### Configuration uses environment variables
 
-## Project Structure
+The containers here are configured with environment variables:
 
-```text
-.
-|-- apps/
-|   |-- builder/       # Next.js web app and product builder
-|   |-- worker/        # background workers for chat, AI, triggers, webhooks, analytics, sequences
-|   |-- partysocket/   # realtime server
-|   |-- cli/           # ChatbotX command line client
-|   `-- mcp-server/    # MCP server backed by public APIs
-|-- integrations/
-|   |-- whatsapp/
-|   |-- messenger/
-|   |-- instagram/
-|   |-- telegram/
-|   |-- zalo/
-|   |-- webchat/
-|   |-- smtp/
-|   |-- openai/
-|   `-- google-sheets/
-|-- packages/
-|   |-- database/
-|   |-- ai/
-|   |-- analytics/
-|   |-- public-apis/
-|   |-- sdk/
-|   |-- scheduler/
-|   |-- sequence-scheduler/
-|   |-- ui/
-|   `-- worker-config/
-|-- docker-compose.yml
-|-- pnpm-workspace.yaml
-`-- turbo.json
+- **Option A** — Edit environment variables under the YAML anchors (`x-environment`, service blocks) in [`docker-compose.yml`](docker-compose.yml).
+- **Option B** — Add a Compose override file (e.g. `docker-compose.override.yml`) layered on top of this project’s compose file.
+- **Option C** — Put a `.env` file next to `docker-compose.yml` for Compose variable substitution (e.g. `POSTGRES_*`, `RUSTFS_*`, `ADMINER_PORT`). (Keep secrets out of Git.)
+
+…or mix the above approaches.
+
+Refer to **[ChatbotX documentation](https://chatbotx.io/docs)** for a full picture of installation, channels, and production settings.
+
+Setup:
+
+```
+git clone https://github.com/ChatbotXIO/chatbotx-docker-compose.git
+cd chatbotx-docker-compose
 ```
 
-## Development Commands
+Then run:
 
-```bash
-pnpm dev              # run turbo dev
-pnpm build            # build all packages/apps through Turborepo
-pnpm lint             # run Ultracite lint
-pnpm fix              # run Ultracite fix
-pnpm check:circular   # check circular dependencies
-pnpm check:unused     # check unused files and dependencies
+```
+docker compose up
 ```
 
-Useful package-level commands:
+Wait for the stack to become healthy, then open the app and tooling:
 
-```bash
-pnpm --filter builder dev
-pnpm --filter worker dev
-pnpm --filter partysocket dev
-pnpm --filter chatbotx-cli dev:cli
-pnpm --filter chatbotx-mcp-server dev:mcp
-pnpm --filter @chatbotx.io/database db:studio
+| Service    | URL                        |
+|-----------|----------------------------|
+| Builder   | http://localhost:3123       |
+| Realtime  | http://localhost:1999       |
+| RustFS    | http://localhost:9000 (S3-compatible API); console http://localhost:9001 |
+| MailHog   | http://localhost:8025 (UI); SMTP http://localhost:1025 |
+| Adminer   | http://localhost:8080       |
+| Postgres  | `localhost:5432` (credentials from compose defaults) |
+| Redis     | `localhost:6379`            |
+
+---
+
+## Example `docker-compose.yml` file
+
+```yaml
+x-network: &network
+  networks:
+    - main  
+
+x-depends-datastores: &depends-datastores
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+    filesystem:
+      condition: service_healthy
+
+x-environment: &common-vars
+  BETTER_AUTH_SECRET: VLu1KcS63DTTnZU3Dh/ykI9Ld26YQXy/1IMJdZf/kHI=
+  BETTER_AUTH_URL: http://localhost:3123
+  DATABASE_URL: postgresql://chatbotx:secretkey@postgres:5432/chatbotx?schema:public
+  NEXT_PUBLIC_ASSET_URL: http://localhost:9000/chatbotx/
+  NEXT_PUBLIC_BUILDER_URL: http://localhost:3123
+  NEXT_PUBLIC_EDITION: community
+  NEXT_PUBLIC_ENVIRONMENT: dev
+  NEXT_PUBLIC_SMTP_FROM: no-reply@localhost
+  NEXT_PUBLIC_REALTIME_URL: http://localhost:1999
+  NODE_OPTIONS: "--max_old_space_size=4096"
+  REALTIME_API_KEY: secretkey
+  REDIS_URL: redis://redis:6379
+  S3_ACCESS_KEY_ID: chatbotx
+  S3_BUCKET: chatbotx
+  S3_ENPOINT: http://localhost:9000
+  S3_REGION: us-west-2
+  S3_SECRET_ACCESS_KEY: secretkey
+  SCHEDULER_BUCKET_RANGE: 0-255
+  SMTP_SERVER: smtp://username:password@localhost:1025
+  RUN_DB_MIGRATE: true
+  RUN_DB_SEED: true
+  CLICKHOUSE_URL: http://clickhouse:8123
+  CLICKHOUSE_USER: chatbotx
+  CLICKHOUSE_PASSWORD: secretkey
+  CLICKHOUSE_DB: chatbotx_analytics
+
+x-worker: &worker
+  <<: [ *network, *depends-datastores ]
+  image: realcodesiman/chatbotx-worker:main
+  platform: linux/amd64
+  restart: unless-stopped
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  environment:
+    <<: *common-vars
+
+x-rustfs-environment: &rustfs-environment
+  RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-chatbotx}
+  RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-secretkey}
+
+services:
+  postgres:
+    <<: *network
+    image: pgvector/pgvector:pg18-trixie
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    command: [ "postgres", "-c", "log_statement=${POSTGRES_LOG_STATEMENT:-none}" ]
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-chatbotx}
+      - POSTGRES_USER=${POSTGRES_USER:-chatbotx}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-secretkey}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  adminer:
+    <<: *network
+    image: adminer:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${ADMINER_PORT:-8080}:8080"
+
+  mailhog:
+    <<: *network
+    image: mailhog/mailhog
+    ports:
+      - 1025:1025
+      - 8025:8025
+
+  filesystem:
+    <<: *network
+    image: rustfs/rustfs:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      <<: *rustfs-environment
+    volumes:
+      - filesystem-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          "curl -f http://127.0.0.1:9000/health && curl -f
+            http://127.0.0.1:9001/rustfs/console/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  filesystem-init:
+    <<: *network
+    image: rustfs/rc:latest
+    depends_on:
+      filesystem:
+        condition: service_healthy
+    environment:
+      <<: *rustfs-environment
+    entrypoint: >
+      /bin/sh -c "rc alias set local http://filesystem:9000
+      $${RUSTFS_ACCESS_KEY} $${RUSTFS_SECRET_KEY}; rc mb local/chatbotx
+      --ignore-existing; touch /tmp/empty && rc cp /tmp/empty
+      local/chatbotx/public/; rc anonymous set public local/chatbotx/public;"
+
+  redis:
+    <<: *network
+    image: redis:8-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  builder:
+    <<: [ *network, *depends-datastores ]
+    image: realcodesiman/chatbotx-builder:main
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      <<: *common-vars
+    ports:
+      - "3123:3000"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # BullMQ Worker
+  worker:
+    <<: [ *worker ]
+    command: [ "worker", "all" ]
+
+  realtime:
+    <<: [ *network ]
+    image: realcodesiman/chatbotx-realtime:latest
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      <<: *common-vars
+    ports:
+      - "1999:1999"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  main:
+    driver: bridge
+
+volumes:
+  db-data:
+  redis-data:
+  filesystem-data:
 ```
 
-## Services
+## About ChatbotX
 
-The default Docker Compose stack includes:
-
-- PostgreSQL with pgvector on `5432`
-- Redis on `6379`
-- RedisInsight on `5540`
-- RustFS object storage on `9000` and console on `9001`
-- MailHog SMTP on `1025` and UI on `8025`
-- Adminer on `8080`
-- ClickHouse through the included ClickHouse compose file
+ChatbotX is an open omnichannel chatbot stack for flows, AI agents, broadcasts, and integrations. Source and issue tracking live in the **[main ChatbotX repository](https://github.com/ChatbotXIO/ChatbotX)**.
 
 ## License
 
-ChatbotX' Community Edition is released as open source under the [AGPLv3 license](https://github.com/ChatbotXIO/ChatbotX/blob/main/LICENSE) and enterprise features are released under [Commercial License](https://github.com/ChatbotXIO/ChatbotX/blob/main/apps/builder/src/enterprise/LICENSE)
+ChatbotX Community Edition is released under **[AGPL-3.0](https://github.com/ChatbotXIO/ChatbotX/blob/main/LICENSE)**.
+
+This Docker Compose readme follows ChatbotX documentation patterns (tutorial and warnings upfront, Compose prerequisites, environment-variable options, clone/run workflow, and an embedded example `docker-compose.yml`).
+
