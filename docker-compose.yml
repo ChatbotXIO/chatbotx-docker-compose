@@ -15,32 +15,28 @@ x-environment: &common-vars
   BETTER_AUTH_SECRET: VLu1KcS63DTTnZU3Dh/ykI9Ld26YQXy/1IMJdZf/kHI=
   BETTER_AUTH_URL: http://localhost:3123
   DATABASE_URL: postgresql://chatbotx:secretkey@postgres:5432/chatbotx?schema:public
+  ENCRYPTION_KEY: 51112f8099c4597dff033d2d94c2f4bde95802d3027ecd0944b7647a8861e53e
   NEXT_PUBLIC_ASSET_URL: http://localhost:9000/chatbotx/
   NEXT_PUBLIC_BUILDER_URL: http://localhost:3123
   NEXT_PUBLIC_EDITION: community
-  NEXT_PUBLIC_ENVIRONMENT: dev
-  NEXT_PUBLIC_SMTP_FROM: no-reply@localhost
-  NEXT_PUBLIC_REALTIME_URL: http://localhost:1999
   NODE_OPTIONS: "--max_old_space_size=4096"
   REALTIME_API_KEY: secretkey
+  REALTIME_BROADCAST_SECRET: e1aad81f3055b8270d0e2fb5692598ce47b929ab76128b158b46d3ff2de9b6d3
   REDIS_URL: redis://redis:6379
+  RUN_DB_MIGRATE: true
+  RUN_DB_SEED: true
   S3_ACCESS_KEY_ID: chatbotx
   S3_BUCKET: chatbotx
   S3_ENPOINT: http://localhost:9000
   S3_REGION: us-west-2
   S3_SECRET_ACCESS_KEY: secretkey
   SCHEDULER_BUCKET_RANGE: 0-255
+  SMTP_FROM: no-reply@localhost
   SMTP_SERVER: smtp://username:password@localhost:1025
-  RUN_DB_MIGRATE: true
-  RUN_DB_SEED: true
-  CLICKHOUSE_URL: http://clickhouse:8123
-  CLICKHOUSE_USER: chatbotx
-  CLICKHOUSE_PASSWORD: secretkey
-  CLICKHOUSE_DB: chatbotx_analytics
 
 x-worker: &worker
   <<: [ *network, *depends-datastores ]
-  image: realcodesiman/chatbotx-worker:main
+  image: ghcr.io/chatbotxio/chatbotx-worker:main
   platform: linux/amd64
   restart: unless-stopped
   extra_hosts:
@@ -55,17 +51,16 @@ x-rustfs-environment: &rustfs-environment
 services:
   postgres:
     <<: *network
-    image: pgvector/pgvector:pg18-trixie
+    image: timescale/timescaledb-ha:pg18.4-ts2.27.2-all
     ports:
       - "5432:5432"
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/home/postgres/pgdata
     command: [ "postgres", "-c", "log_statement=${POSTGRES_LOG_STATEMENT:-none}" ]
     environment:
       - POSTGRES_DB=${POSTGRES_DB:-chatbotx}
       - POSTGRES_USER=${POSTGRES_USER:-chatbotx}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-secretkey}
-      - PGDATA=/var/lib/postgresql/data/pgdata
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 10s
@@ -75,7 +70,7 @@ services:
 
   adminer:
     <<: *network
-    image: adminer:latest
+    image: adminer:5.4.2
     depends_on:
       postgres:
         condition: service_healthy
@@ -84,14 +79,14 @@ services:
 
   mailhog:
     <<: *network
-    image: mailhog/mailhog
+    image: mailhog/mailhog:v1.0.1
     ports:
       - 1025:1025
       - 8025:8025
 
   filesystem:
     <<: *network
-    image: rustfs/rustfs:latest
+    image: rustfs/rustfs:1.0.0-beta.8
     command: server /data --console-address ":9001"
     ports:
       - "9000:9000"
@@ -118,7 +113,7 @@ services:
 
   filesystem-init:
     <<: *network
-    image: rustfs/rc:latest
+    image: rustfs/rc:v0.1.22
     depends_on:
       filesystem:
         condition: service_healthy
@@ -132,7 +127,7 @@ services:
 
   redis:
     <<: *network
-    image: redis:8-alpine
+    image: redis:8.8.0-alpine
     ports:
       - "6379:6379"
     volumes:
@@ -145,7 +140,7 @@ services:
 
   builder:
     <<: [ *network, *depends-datastores ]
-    image: realcodesiman/chatbotx-builder:main
+    image: ghcr.io/chatbotxio/chatbotx-builder:main
     platform: linux/amd64
     restart: unless-stopped
     environment:
@@ -167,9 +162,15 @@ services:
 
   realtime:
     <<: [ *network ]
-    image: realcodesiman/chatbotx-realtime:latest
+    image: ghcr.io/chatbotxio/chatbotx-realtime:main
     platform: linux/amd64
     restart: unless-stopped
+    entrypoint: >
+      bash -c "
+        cd /app/apps/realtime;
+        echo "REALTIME_BROADCAST_SECRET=$${REALTIME_BROADCAST_SECRET}" > .env;
+        HOSTNAME=${HOSTNAME:-0.0.0.0} PORT=${PORT:-1999} pnpm dlx partykit dev;
+      "
     environment:
       <<: *common-vars
     ports:

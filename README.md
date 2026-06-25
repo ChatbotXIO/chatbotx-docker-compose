@@ -97,7 +97,6 @@ x-environment: &common-vars
   NEXT_PUBLIC_EDITION: community
   NEXT_PUBLIC_ENVIRONMENT: dev
   NEXT_PUBLIC_SMTP_FROM: no-reply@localhost
-  NEXT_PUBLIC_REALTIME_URL: http://localhost:1999
   NODE_OPTIONS: "--max_old_space_size=4096"
   REALTIME_API_KEY: secretkey
   REDIS_URL: redis://redis:6379
