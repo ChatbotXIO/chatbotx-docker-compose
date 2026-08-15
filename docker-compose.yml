@@ -16,6 +16,8 @@ x-environment: &common-vars
   BETTER_AUTH_URL: http://localhost:3123
   DATABASE_URL: postgresql://chatbotx:secretkey@postgres:5432/chatbotx?schema:public
   ENCRYPTION_KEY: 51112f8099c4597dff033d2d94c2f4bde95802d3027ecd0944b7647a8861e53e
+  JAVASCRIPT_EXECUTOR_URL: http://javascript-executor:3210
+  JAVASCRIPT_EXECUTOR_TOKEN: ${JAVASCRIPT_EXECUTOR_TOKEN:-change-me-in-production-at-least-32-chars}
   NEXT_PUBLIC_ASSET_URL: http://localhost:9000/chatbotx/
   NEXT_PUBLIC_BUILDER_URL: http://localhost:3123
   NEXT_PUBLIC_EDITION: community
@@ -36,7 +38,7 @@ x-environment: &common-vars
 
 x-worker: &worker
   <<: [ *network, *depends-datastores ]
-  image: ghcr.io/chatbotxio/chatbotx-worker:main
+  image: ghcr.io/chatbotxio/chatbotx-worker:latest
   platform: linux/amd64
   restart: unless-stopped
   extra_hosts:
@@ -140,7 +142,7 @@ services:
 
   builder:
     <<: [ *network, *depends-datastores ]
-    image: ghcr.io/chatbotxio/chatbotx-builder:main
+    image: ghcr.io/chatbotxio/chatbotx-builder:latest
     platform: linux/amd64
     restart: unless-stopped
     environment:
@@ -159,10 +161,53 @@ services:
   worker:
     <<: [ *worker ]
     command: [ "worker", "all" ]
+    networks:
+      - main
+      - javascript-executor-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      filesystem:
+        condition: service_healthy
+      javascript-executor:
+        condition: service_healthy
+
+  # Sandboxed runtime for user-authored JavaScript flow steps.
+  # Isolated on an internal-only network with no host-published port.
+  javascript-executor:
+    image: ghcr.io/chatbotxio/chatbotx-javascript-executor:latest
+    platform: linux/amd64
+    restart: unless-stopped
+    networks:
+      - javascript-executor-network
+    environment:
+      JAVASCRIPT_EXECUTOR_TOKEN: ${JAVASCRIPT_EXECUTOR_TOKEN:-change-me-in-production-at-least-32-chars}
+      MAX_CONCURRENCY: ${MAX_CONCURRENCY:-2}
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid,nodev
+    pids_limit: 128
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 512M
+          pids: 128
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3210/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   realtime:
     <<: [ *network ]
-    image: ghcr.io/chatbotxio/chatbotx-realtime:main
+    image: ghcr.io/chatbotxio/chatbotx-realtime:latest
     platform: linux/amd64
     restart: unless-stopped
     entrypoint: >
@@ -181,6 +226,9 @@ services:
 networks:
   main:
     driver: bridge
+  javascript-executor-network:
+    driver: bridge
+    internal: true
 
 volumes:
   db-data:
