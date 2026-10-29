@@ -82,6 +82,7 @@ The full, current stack definition lives in **[`docker-compose.yml`](docker-comp
 Notable details worth knowing before you edit it:
 
 - All application images (`builder`, `worker`, `realtime`, `javascript-executor`) are pulled from `ghcr.io/chatbotxio/*:latest` — the most recent tagged release. See the file for exact tags.
+- `realtime` uses the image's production entrypoint. Do not override it with a PartyKit development command.
 - `javascript-executor` sandboxes untrusted, user-authored JavaScript flow steps. It sits on its own `internal: true` network with no host-published port, runs `read_only` with `cap_drop: ALL`, `no-new-privileges`, a small `noexec` tmpfs, and CPU/memory/PID limits. Only `worker` can reach it. Do not remove this isolation when customizing the file.
 - Set `JAVASCRIPT_EXECUTOR_TOKEN` to a real secret (32+ characters) before running this in anything beyond local/throwaway environments.
 
