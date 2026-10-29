@@ -210,12 +210,6 @@ services:
     image: ghcr.io/chatbotxio/chatbotx-realtime:latest
     platform: linux/amd64
     restart: unless-stopped
-    entrypoint: >
-      bash -c "
-        cd /app/apps/realtime;
-        echo "REALTIME_BROADCAST_SECRET=$${REALTIME_BROADCAST_SECRET}" > .env;
-        HOSTNAME=${HOSTNAME:-0.0.0.0} PORT=${PORT:-1999} pnpm dlx partykit dev;
-      "
     environment:
       <<: *common-vars
     ports:
